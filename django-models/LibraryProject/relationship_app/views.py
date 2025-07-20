@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import permission_required, user_passes_test
 from django.views.generic.detail import DetailView
 from .models import Book, Library, Author, Librarian  # or whichever models you're using
 
+from .models import Library
 from .forms import BookForm  # Ensure this form exists
 
 
