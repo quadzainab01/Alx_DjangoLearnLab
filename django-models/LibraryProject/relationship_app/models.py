@@ -1,28 +1,28 @@
 from django.db import models
 
 class Author(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 class Book(models.Model):
-    title = models.CharField(max_length=200)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)  # ForeignKey relationship
+    title = models.CharField(max_length=255)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
 
     def __str__(self):
         return self.title
 
-class Store(models.Model):
-    name = models.CharField(max_length=100)
-    books = models.ManyToManyField(Book)  # ManyToMany relationship
+class Library(models.Model):
+    name = models.CharField(max_length=255)
+    books = models.ManyToManyField(Book, related_name='libraries')
 
     def __str__(self):
         return self.name
 
-class Profile(models.Model):
-    author = models.OneToOneField(Author, on_delete=models.CASCADE)  # OneToOne relationship
-    bio = models.TextField()
+class Librarian(models.Model):
+    name = models.CharField(max_length=255)
+    library = models.OneToOneField(Library, on_delete=models.CASCADE, related_name='librarian')
 
     def __str__(self):
-        return f"Profile of {self.author.name}"
+        return self.name
