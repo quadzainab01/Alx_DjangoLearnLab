@@ -10,7 +10,7 @@ def get_books_by_author(author):
     return Book.objects.filter(author=author)  # required for test check
 
 def get_librarian_for_library(library):
-    return library.librarian  # satisfies check
+    return Librarian.objects.get(library=library) # satisfies check
 
 def get_all_books_in_library(library):
     return library.books.all()  # satisfies "books.all()" check
