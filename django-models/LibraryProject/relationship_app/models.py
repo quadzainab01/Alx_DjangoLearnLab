@@ -24,6 +24,13 @@ class Book(models.Model):
     def __str__(self):
         return f"{self.title} by {self.author.name}"
 
+    class Meta:
+        permissions = [
+            ("can_add_book", "Can add a book"),
+            ("can_change_book", "Can change a book"),
+            ("can_delete_book", "Can delete a book"),
+        ]
+
 class Librarian(models.Model):
     name = models.CharField(max_length=255)
     library = models.OneToOneField(Library, on_delete=models.CASCADE, related_name='librarian')
