@@ -5,10 +5,9 @@ from django.contrib.auth.views import LogoutView, LoginView
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth import login
-from django.shortcuts import redirect
 from .models import Book, Library
 
-# List all books - function-based view
+# List all books - function-based view (you can keep this one as is)
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
@@ -31,7 +30,7 @@ class RegisterView(CreateView):
         login(self.request, user)  # Log the user in after registration
         return response
 
-# Login view (optional - you can also use Django's default auth views directly)
+# Login view
 class CustomLoginView(LoginView):
     template_name = 'relationship_app/login.html'
 
