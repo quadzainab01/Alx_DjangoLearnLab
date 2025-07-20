@@ -1,39 +1,25 @@
-from django.shortcuts import render
-from django.views.generic.detail import DetailView
+from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.views import LogoutView, LoginView
-from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
 from django.contrib.auth import login
+from django.views.generic.detail import DetailView
 from .models import Book, Library
 
-# List all books - function-based view (you can keep this one as is)
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
-# Library detail - class-based view
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
-# Register view with automatic login
-class RegisterView(CreateView):
-    form_class = UserCreationForm
-    template_name = 'relationship_app/register.html'
-    success_url = reverse_lazy('home')  # Redirect here after successful registration
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        user = self.object
-        login(self.request, user)  # Log the user in after registration
-        return response
-
-# Login view
-class CustomLoginView(LoginView):
-    template_name = 'relationship_app/login.html'
-
-# Logout view
-class CustomLogoutView(LogoutView):
-    template_name = 'relationship_app/logout.html'
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'relationship_app/register.html', {'form': form})
