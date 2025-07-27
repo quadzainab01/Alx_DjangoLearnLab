@@ -1,29 +1,29 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 from django.apps import apps
 
 class Command(BaseCommand):
-    help = "Set up groups and assign custom permissions"
+    help = 'Sets up custom permissions for the Book model'
 
     def handle(self, *args, **kwargs):
-        Article = apps.get_model('bookshelf', 'Article')
+        Book = apps.get_model('bookshelf', 'Book')
+        content_type = ContentType.objects.get_for_model(Book)
 
-        # Permissions
-        can_view = Permission.objects.get(codename='can_view')
-        can_create = Permission.objects.get(codename='can_create')
-        can_edit = Permission.objects.get(codename='can_edit')
-        can_delete = Permission.objects.get(codename='can_delete')
+        permissions = [
+            ("can_view", "Can view book"),
+            ("can_create", "Can create book"),
+            ("can_edit", "Can edit book"),
+            ("can_delete", "Can delete book"),
+        ]
 
-        # Group: Viewers
-        viewers, created = Group.objects.get_or_create(name='Viewers')
-        viewers.permissions.set([can_view])
-
-        # Group: Editors
-        editors, created = Group.objects.get_or_create(name='Editors')
-        editors.permissions.set([can_view, can_create, can_edit])
-
-        # Group: Admins
-        admins, created = Group.objects.get_or_create(name='Admins')
-        admins.permissions.set([can_view, can_create, can_edit, can_delete])
-
-        self.stdout.write(self.style.SUCCESS("Groups and permissions set up successfully."))
+        for codename, name in permissions:
+            permission, created = Permission.objects.get_or_create(
+                codename=codename,
+                name=name,
+                content_type=content_type
+            )
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"Created permission: {name}"))
+            else:
+                self.stdout.write(f"Permission already exists: {name}")
