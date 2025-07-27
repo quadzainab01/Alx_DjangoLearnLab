@@ -153,3 +153,23 @@ CONTENT_SECURITY_POLICY = {
         'connect-src': ("'self'",),
     }
 }
+
+# --- HTTPS and Security Settings ---
+
+# Redirect all HTTP requests to HTTPS
+SECURE_SSL_REDIRECT = True  # Enforce HTTPS
+
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # One year in seconds
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# Secure cookies: Transmit only over HTTPS
+SESSION_COOKIE_SECURE = True  # Protect session cookie
+CSRF_COOKIE_SECURE = True     # Protect CSRF token cookie
+
+# Additional security headers
+X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent content type sniffing
+SECURE_BROWSER_XSS_FILTER = True    # Enable browser XSS filter
+

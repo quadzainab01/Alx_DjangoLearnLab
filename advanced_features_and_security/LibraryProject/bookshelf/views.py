@@ -45,3 +45,6 @@ def search_books(request):
     query = request.GET.get("q", "").strip()
     books = Book.objects.filter(title__icontains=query) if query else []
     return render(request, "bookshelf/book_search_results.html", {"books": books, "query": query})
+
+def get_queryset(self):
+    return Book.objects.filter(created_by=self.request.user)
