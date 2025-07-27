@@ -23,7 +23,9 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-key-for-dev-only')
 DEBUG = False
 
 # Replace with your production domain in deployment
-ALLOWED_HOSTS = ['your-production-domain.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['quadzainab01.pythonanywhere.com', '127.0.0.1', 'localhost']
+
+# Added this comment to trigger a new commit for deployment check
 
 # Application definition
 INSTALLED_APPS = [
@@ -172,4 +174,7 @@ CSRF_COOKIE_SECURE = True     # Protect CSRF token cookie
 X_FRAME_OPTIONS = 'DENY'  # Prevent clickjacking
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent content type sniffing
 SECURE_BROWSER_XSS_FILTER = True    # Enable browser XSS filter
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+DUMMY_SETTING_FOR_COMMIT = True
 

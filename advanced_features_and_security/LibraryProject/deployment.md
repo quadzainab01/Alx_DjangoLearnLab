@@ -1,14 +1,27 @@
-# Deployment Configuration for HTTPS (Production)
+# Django Deployment Guide
 
-To serve this Django application securely over HTTPS in a production environment:
+---
 
-1. **Install SSL Certificates**
-   - Use Let's Encrypt or a commercial provider.
-   - For Let's Encrypt with Nginx:
-     ```bash
-     sudo apt install certbot python3-certbot-nginx
-     sudo certbot --nginx
-     ```
+## 🔧 Local Development Setup (Windows + Git Bash + VS Code)
 
-2. **Update Nginx Configuration**
-   Example `/etc/nginx/sites-available/example.com`:
+# Clone the Repository
+   ```bash
+   git clone https://github.com/quadzainab01/Alx_DjangoLearnLab.git
+   cd Alx_DjangoLearnLab/advanced_features_and_security/LibraryProject
+
+# Create and Activate a Virtual Environment
+python -m venv venv
+source venv/Scripts/activate
+
+# Install Dependencies
+pip install -r requirements.txt
+
+# Apply Migrations
+python manage.py makemigrations
+python manage.py migrate
+
+# Create a Superuser
+python manage.py createsuperuser
+
+# Run Development Server
+python manage.py runserver
