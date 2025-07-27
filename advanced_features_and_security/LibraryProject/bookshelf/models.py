@@ -1,10 +1,15 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
+
+class CustomUserManager(UserManager):
+    pass
 
 class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
+
+    objects = CustomUserManager()  # explicitly set custom manager
 
 User = get_user_model()
 
