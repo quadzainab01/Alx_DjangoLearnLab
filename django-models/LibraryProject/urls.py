@@ -20,5 +20,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('LibraryProject.relationship_app.urls')),  # Note the full dotted path here
+    path('', include('relationship_app.urls')),
 ]
