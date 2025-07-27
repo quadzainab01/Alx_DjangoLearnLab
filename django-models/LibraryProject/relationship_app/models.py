@@ -17,18 +17,18 @@ class Library(models.Model):
 
 class Book(models.Model):
     title = models.CharField(max_length=255)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books')
+    author = models.ForeignKey('Author', on_delete=models.CASCADE, related_name='books')      
+    library = models.ForeignKey('Library', on_delete=models.CASCADE)
     publication_year = models.IntegerField(default=2020)
-    libraries = models.ManyToManyField(Library, related_name='books')
 
     def __str__(self):
         return f"{self.title} by {self.author.name}"
 
     class Meta:
         permissions = [
-            ("can_add_book", "Can add a book"),
-            ("can_change_book", "Can change a book"),
-            ("can_delete_book", "Can delete a book"),
+            ("canaddbook", "Can add book"),
+            ("canchangebook", "Can change book"),
+            ("candeletebook", "Can delete book"),
         ]
 
 class Librarian(models.Model):
@@ -55,3 +55,5 @@ class UserProfile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance, role='Member')
+
+
