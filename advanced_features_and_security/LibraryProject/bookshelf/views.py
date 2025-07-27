@@ -1,6 +1,7 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.shortcuts import render
 from .models import Book
 from .forms import BookForm
 
@@ -37,3 +38,9 @@ class BookDeleteView(PermissionRequiredMixin, DeleteView):
     success_url = reverse_lazy('book_list')
     permission_required = 'bookshelf.can_delete'
     raise_exception = True
+
+# ✅ Secure Search View (Safe from SQL Injection)
+def search_books(request):
+    query = request.GET.get("q", "").strip()
+    books = Book.objects.filter(title__icontains=query) if query else []
+    return render(request, "bookshelf/book_search_results.html", {"books": books, "query": query})
