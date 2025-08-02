@@ -1,24 +1,13 @@
 from django.http import JsonResponse
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import generics
 from .models import Book
 from .serializers import BookSerializer
 
-# Basic home view for root URL
+# Home view (simple message)
 def home(request):
     return JsonResponse({"message": "Hello from Django API!"})
 
-# API View to handle GET (list) and POST (create) for Book model
-class BookList(APIView):
-    def get(self, request):
-        books = Book.objects.all()
-        serializer = BookSerializer(books, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = BookSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# API view to list books
+class BookList(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
