@@ -1,4 +1,6 @@
 from django.http import JsonResponse
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from rest_framework import viewsets
 from rest_framework import generics
 from .models import Book
@@ -9,7 +11,7 @@ def home(request):
     return JsonResponse({"message": "Hello from Django API!"})
 
 # API view to list books
-class BookList(generics.ListAPIView):
+class BookList(generics.ListCreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
@@ -17,3 +19,5 @@ class BookList(generics.ListAPIView):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+    

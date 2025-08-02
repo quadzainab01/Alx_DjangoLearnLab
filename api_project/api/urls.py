@@ -13,3 +13,4 @@ urlpatterns = [
     # Include router URLs (CRUD: /books_all/, /books_all/<id>/, etc.)
     path('', include(router.urls)),
 ]
+
