@@ -37,6 +37,15 @@ User = get_user_model()
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
+<<<<<<< HEAD
+    publication_year = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.title} by {self.author} ({self.publication_year})"
+from django.db import models
+
+# Create your models here.
+=======
     description = models.TextField()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='books')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,3 +60,4 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+>>>>>>> 51cbc6308e2bd402d7433c9d38c322f4b2551974
