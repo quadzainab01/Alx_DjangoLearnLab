@@ -17,8 +17,8 @@ class BookListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['title', 'author', 'publication_year']
-    search_fields = ['title', 'author']
+    filterset_fields = ['title', 'author', 'publication_year']  # filtering by author ID works fine
+    search_fields = ['title', 'author__name']                   # search on author name, not foreign key directly
     ordering_fields = ['title', 'publication_year']
     ordering = ['title']
 
