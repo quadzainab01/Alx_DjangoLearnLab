@@ -11,7 +11,7 @@ def home(request):
     return JsonResponse({"message": "Hello from Django API!"})
 
 # API view to list books
-class BookList(generics.ListCreateAPIView):
+class BookList(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
