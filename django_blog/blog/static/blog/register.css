@@ -1,0 +1,13 @@
+/* register.css - minimal placeholder */
+body {
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+}
+
+form {
+    margin: 20px auto;
+    padding: 10px;
+    max-width: 400px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
