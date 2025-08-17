@@ -4,20 +4,15 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.utils import timezone
-from django.urls import reverse_lazy, reverse
-from .models import Post
-from .forms import CommentForm
-from taggit.models import Tag
-
+from django.urls import reverse, reverse_lazy
 from django.db.models import Q
-from .forms import PostSearchForm
-
-from .models import Post, Profile
-from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm
 
 from .models import Post, Profile, Comment
-from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm, PostForm, CommentForm
-
+from .forms import (
+    RegisterForm, UserUpdateForm, ProfileUpdateForm,
+    PostForm, CommentForm, PostSearchForm
+)
+from taggit.models import Tag
 
 
 # Home (latest 5 published posts)
@@ -123,19 +118,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == post.author
 
 
-# Optional: manual publish endpoint (useful if you allow drafts)
-@login_required
-def publish_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.user == post.author:
-        post.publish()
-        messages.success(request, "Post published successfully.")
-    return redirect('blog:post-detail', pk=pk)
-
-
-print("publish_post in globals:", "publish_post" in globals())
-
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -149,6 +131,9 @@ def publish_post(request, pk):
         post.publish()
         messages.success(request, "Post published successfully.")
     return redirect('blog:post-detail', pk=pk)
+
+print("publish_post in globals:", "publish_post" in globals())
+
 
 
 # --- Comment Views ---

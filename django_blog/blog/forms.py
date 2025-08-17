@@ -1,9 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile
-from .models import Post
-from .models import Comment
+from .models import Profile, Post, Comment
 from taggit.forms import TagWidget
 
 
@@ -21,10 +19,12 @@ class RegisterForm(UserCreationForm):
             user.save()
         return user
 
+
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email']
+
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
@@ -35,15 +35,19 @@ class ProfileUpdateForm(forms.ModelForm):
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'tags']  # Include tags
+        fields = ['title', 'content', 'tags']
         widgets = {
-            'tags': TagWidget(attrs={'class': 'form-control'})  # Optional: nicer input
+            'tags': TagWidget(attrs={'class': 'form-control'})
         }
+
 
 class CommentForm(forms.ModelForm):
     content = forms.CharField(
         label='',
-        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your comment here...'})
+        widget=forms.Textarea(attrs={
+            'rows': 3,
+            'placeholder': 'Write your comment here...'
+        })
     )
 
     class Meta:
@@ -53,7 +57,8 @@ class CommentForm(forms.ModelForm):
 
 class PostSearchForm(forms.Form):
     query = forms.CharField(
-        max_length=200,
+        label='Search',
+        max_length=255,
         required=False,
-        widget=forms.TextInput(attrs={'placeholder': 'Search posts...', 'class': 'form-control'})
+        widget=forms.TextInput(attrs={'placeholder': 'Search posts...'})
     )
