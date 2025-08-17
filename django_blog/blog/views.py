@@ -15,13 +15,13 @@ from .forms import (
 from taggit.models import Tag
 
 
-# Home (latest 5 published posts)
+# --- Home ---
 def home(request):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')[:5]
     return render(request, "blog/home.html", {"posts": posts})
 
 
-# Registration
+# --- Registration ---
 def register(request):
     if request.user.is_authenticated:
         return redirect("blog:profile")
@@ -36,12 +36,10 @@ def register(request):
     return render(request, "blog/register.html", {"form": form})
 
 
-# Profile Update (safe even if Profile doesn't yet exist)
+# --- Profile ---
 @login_required
 def profile(request):
-    # Ensure profile exists for this user
-    profile_obj, _created = Profile.objects.get_or_create(user=request.user)
-
+    profile_obj, _ = Profile.objects.get_or_create(user=request.user)
     if request.method == "POST":
         u_form = UserUpdateForm(request.POST, instance=request.user)
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile_obj)
@@ -57,8 +55,7 @@ def profile(request):
     return render(request, "blog/profile.html", {"u_form": u_form, "p_form": p_form})
 
 
-# --- Blog Post Views ---
-
+# --- Post Views ---
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
@@ -66,7 +63,6 @@ class PostListView(ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        # Only show published posts publicly
         return Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
 
 
@@ -76,9 +72,9 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Add CommentForm to the context for inline display
         context['form'] = CommentForm()
         return context
+
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -87,9 +83,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        # Option A: publish immediately (uncomment next line)
+        # Publish immediately
         form.instance.published_date = timezone.now()
-        # Option B: leave as draft (comment out the line above)
         return super().form_valid(form)
 
 
@@ -99,13 +94,11 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'blog/post_form.html'
 
     def form_valid(self, form):
-        # Keep author intact as current user
         form.instance.author = self.request.user
         return super().form_valid(form)
 
     def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
+        return self.get_object().author == self.request.user
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -114,15 +107,8 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy('blog:post-list')
 
     def test_func(self):
-        post = self.get_object()
-        return self.request.user == post.author
+        return self.get_object().author == self.request.user
 
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-from .models import Post
-from django.utils import timezone
 
 @login_required
 def publish_post(request, pk):
@@ -132,21 +118,15 @@ def publish_post(request, pk):
         messages.success(request, "Post published successfully.")
     return redirect('blog:post-detail', pk=pk)
 
-print("publish_post in globals:", "publish_post" in globals())
-
-
 
 # --- Comment Views ---
-
-# Create a new comment for a specific post
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/add_comment.html'
 
     def form_valid(self, form):
-        post_pk = self.kwargs['pk']
-        post = get_object_or_404(Post, pk=post_pk)
+        post = get_object_or_404(Post, pk=self.kwargs['pk'])
         form.instance.author = self.request.user
         form.instance.post = post
         messages.success(self.request, "Comment added successfully.")
@@ -156,7 +136,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return reverse('blog:post-detail', kwargs={'pk': self.object.post.pk})
 
 
-# Update an existing comment
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
@@ -167,28 +146,26 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
     def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
+        return self.get_object().author == self.request.user
 
     def get_success_url(self):
         return reverse('blog:post-detail', kwargs={'pk': self.object.post.pk})
 
 
-# Delete an existing comment
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
 
     def test_func(self):
-        comment = self.get_object()
-        return self.request.user == comment.author
+        return self.get_object().author == self.request.user
 
     def get_success_url(self):
         messages.success(self.request, "Comment deleted successfully.")
         return reverse('blog:post-detail', kwargs={'pk': self.object.post.pk})
 
-# Tag
-class PostsByTagView(ListView):
+
+# --- Tag View ---
+class PostByTagListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'
@@ -196,7 +173,9 @@ class PostsByTagView(ListView):
 
     def get_queryset(self):
         tag_slug = self.kwargs.get('tag_slug')
-        return Post.objects.filter(tags__slug=tag_slug, published_date__lte=timezone.now()).order_by('-published_date')
+        if tag_slug:
+            return Post.objects.filter(tags__slug=tag_slug, published_date__lte=timezone.now())
+        return Post.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -204,7 +183,7 @@ class PostsByTagView(ListView):
         return context
 
 
-# Search
+# --- Search View ---
 class PostSearchView(ListView):
     model = Post
     template_name = 'blog/search_results.html'
@@ -215,12 +194,12 @@ class PostSearchView(ListView):
         query = self.request.GET.get('query')
         if query:
             return Post.objects.filter(
-                Q(title__icontains=query) | 
+                Q(title__icontains=query) |
                 Q(content__icontains=query) |
                 Q(tags__name__icontains=query),
                 published_date__lte=timezone.now()
             ).distinct().order_by('-published_date')
-        return Post.objects.none()  # Return empty queryset if no search
+        return Post.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
