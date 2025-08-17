@@ -1,5 +1,6 @@
 {% extends "blog/base.html" %}
 {% block content %}
+
 <h2>{{ object.title }}</h2>
 
 {% if not object.published_date %}
@@ -25,4 +26,37 @@
     </form>
   {% endif %}
 {% endif %}
+
+<hr>
+
+<h3>Comments ({{ object.comments.count }})</h3>
+<div class="comments">
+    {% for comment in object.comments.all %}
+        <div class="comment mb-2 p-2 border rounded">
+            <p><strong>{{ comment.author.username }}</strong> said:</p>
+            <p>{{ comment.content }}</p>
+            <small>Posted on {{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+            {% if user == comment.author %}
+                <div class="mt-1">
+                    <a href="{% url 'blog:edit_comment' comment.id %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'blog:delete_comment' comment.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </div>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No comments yet. Be the first to comment!</p>
+    {% endfor %}
+</div>
+
+{% if user.is_authenticated %}
+    <h4 class="mt-4">Add a Comment</h4>
+    <form method="post" action="{% url 'blog:add_comment' object.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Post Comment</button>
+    </form>
+{% else %}
+    <p class="mt-2"><a href="{% url 'blog:login' %}">Login</a> to post a comment.</p>
+{% endif %}
+
 {% endblock %}
