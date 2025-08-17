@@ -1,0 +1,13 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<h2>All Posts</h2>
+{% for post in posts %}
+    <article>
+        <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+        <p>{{ post.content|truncatechars:100 }}</p>
+        <p>By {{ post.author }} on {{ post.date_posted|date:"F d, Y" }}</p>
+    </article>
+{% empty %}
+    <p>No posts yet.</p>
+{% endfor %}
+{% endblock %}
