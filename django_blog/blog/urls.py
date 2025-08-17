@@ -2,7 +2,8 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 from .views import (
-    PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
+    PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView,
+    CommentCreateView, CommentUpdateView, CommentDeleteView
 )
 
 app_name = 'blog'
@@ -28,4 +29,10 @@ urlpatterns = [
 
     # Optional manual publish if you use drafts
     path('post/<int:pk>/publish/', views.publish_post, name='post-publish'),
+
+    # Comment CRUD
+    path('post/<int:post_id>/comment/new/', CommentCreateView.as_view(), name='add-comment'),
+    path('comment/<int:pk>/edit/', CommentUpdateView.as_view(), name='edit-comment'),
+    path('comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='delete-comment'),
+
 ]
