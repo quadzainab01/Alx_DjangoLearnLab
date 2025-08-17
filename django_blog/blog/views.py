@@ -149,28 +149,32 @@ def publish_post(request, pk):
 
 # --- Comment Views ---
 
+# Create a new comment for a specific post
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/add_comment.html'
 
     def form_valid(self, form):
+        post_pk = self.kwargs['pk']
+        post = get_object_or_404(Post, pk=post_pk)
         form.instance.author = self.request.user
-        form.instance.post = get_object_or_404(Post, id=self.kwargs['post_id'])
-        messages.success(self.request, 'Comment added successfully.')
+        form.instance.post = post
+        messages.success(self.request, "Comment added successfully.")
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('blog:post-detail', kwargs={'pk': self.kwargs['post_id']})
+        return reverse('blog:post-detail', kwargs={'pk': self.object.post.pk})
 
 
+# Update an existing comment
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
     template_name = 'blog/edit_comment.html'
 
     def form_valid(self, form):
-        messages.success(self.request, 'Comment updated successfully.')
+        messages.success(self.request, "Comment updated successfully.")
         return super().form_valid(form)
 
     def test_func(self):
@@ -178,9 +182,10 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return self.request.user == comment.author
 
     def get_success_url(self):
-        return reverse('blog:post-detail', kwargs={'pk': self.get_object().post.id})
+        return reverse('blog:post-detail', kwargs={'pk': self.object.post.pk})
 
 
+# Delete an existing comment
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = 'blog/comment_confirm_delete.html'
@@ -190,5 +195,5 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == comment.author
 
     def get_success_url(self):
-        messages.success(self.request, 'Comment deleted successfully.')
-        return reverse('blog:post-detail', kwargs={'pk': self.get_object().post.id})
+        messages.success(self.request, "Comment deleted successfully.")
+        return reverse('blog:post-detail', kwargs={'pk': self.object.post.pk})
