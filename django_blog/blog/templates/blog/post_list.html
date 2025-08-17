@@ -8,12 +8,31 @@
 
 {% for post in posts %}
 <article>
-    <h3><a href="{% url 'blog:post-detail' post.pk %}">{{ post.title }}</a></h3>
+    <h3>
+        <a href="{% url 'blog:post-detail' post.pk %}">{{ post.title }}</a>
+        {% if user == post.author and not post.published_date %}
+            <span style="color: red; font-weight: bold;">(Draft)</span>
+        {% endif %}
+    </h3>
     <p>{{ post.content|truncatechars:100 }}</p>
-    <p>By {{ post.author }} on {{ post.date_posted|date:"F d, Y" }}</p>
+    <p>By {{ post.author }} on 
+        {% if post.published_date %}
+            {{ post.published_date|date:"F d, Y" }}
+        {% else %}
+            <em>Draft</em>
+        {% endif %}
+    </p>
+
     {% if user == post.author %}
         <a class="button" href="{% url 'blog:post-update' post.pk %}">Edit</a>
         <a class="button" href="{% url 'blog:post-delete' post.pk %}">Delete</a>
+
+        {% if not post.published_date %}
+            <form method="POST" action="{% url 'blog:post-publish' post.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="button">Publish</button>
+            </form>
+        {% endif %}
     {% endif %}
 </article>
 <hr>

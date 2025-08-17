@@ -2,12 +2,25 @@
 {% block content %}
 <h2>{{ post.title }}</h2>
 <p>{{ post.content }}</p>
-<p>By {{ post.author }} on {{ post.date_posted|date:"F d, Y" }}</p>
+
+<p>By {{ post.author }} on 
+    {% if post.published_date %}
+        {{ post.published_date|date:"F d, Y" }}
+    {% else %}
+        <em>Draft</em>
+    {% endif %}
+</p>
 
 {% if user == post.author %}
     <a class="button" href="{% url 'blog:post-update' post.pk %}">Edit Post</a>
     <a class="button" href="{% url 'blog:post-delete' post.pk %}">Delete Post</a>
+
+    {% if not post.published_date %}
+        <form method="POST" action="{% url 'blog:post-publish' post.pk %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="button">Publish</button>
+        </form>
+    {% endif %}
 {% endif %}
 
-<a class="button" href="{% url 'blog:post-list' %}">Back to Posts</a>
-{% endblock %}
+<a class="button" href="{% url 'bl
