@@ -1,26 +1,28 @@
 {% extends "blog/base.html" %}
 {% block content %}
-<h2>{{ post.title }}</h2>
-<p>{{ post.content }}</p>
+<h2>{{ object.title }}</h2>
 
-<p>By {{ post.author }} on 
-    {% if post.published_date %}
-        {{ post.published_date|date:"F d, Y" }}
-    {% else %}
-        <em>Draft</em>
-    {% endif %}
-</p>
-
-{% if user == post.author %}
-    <a class="button" href="{% url 'blog:post-update' post.pk %}">Edit Post</a>
-    <a class="button" href="{% url 'blog:post-delete' post.pk %}">Delete Post</a>
-
-    {% if not post.published_date %}
-        <form method="POST" action="{% url 'blog:post-publish' post.pk %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="button">Publish</button>
-        </form>
-    {% endif %}
+{% if not object.published_date %}
+  <p style="color:red;">(Draft)</p>
 {% endif %}
 
-<a class="button" href="{% url 'bl
+<p>{{ object.content }}</p>
+<p>By {{ object.author }} on
+  {% if object.published_date %}
+    {{ object.published_date|date:"F d, Y" }}
+  {% else %}
+    {{ object.date_posted|date:"F d, Y" }}
+  {% endif %}
+</p>
+
+{% if user == object.author %}
+  <a href="{% url 'blog:post-update' object.pk %}">Edit</a> |
+  <a href="{% url 'blog:post-delete' object.pk %}">Delete</a>
+  {% if not object.published_date %}
+    <form action="{% url 'blog:post-publish' object.pk %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit">Publish</button>
+    </form>
+  {% endif %}
+{% endif %}
+{% endblock %}

@@ -1,14 +1,16 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.utils import timezone
 from .models import Post
 from .forms import RegisterForm, UserUpdateForm, ProfileUpdateForm
 
-# Home
+
+# Home (latest 5 posts)
 def home(request):
-    posts = Post.objects.order_by('-date_posted')[:5]  # latest 5 posts
+    posts = Post.objects.order_by('-published_date')[:5]
     return render(request, "blog/home.html", {"posts": posts})
 
 
@@ -45,7 +47,6 @@ def profile(request):
     return render(request, "blog/profile.html", {"u_form": u_form, "p_form": p_form})
 
 
-
 # --- Blog Post Views ---
 
 # List all posts
@@ -53,13 +54,17 @@ class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'
-    ordering = ['-date_posted']
     paginate_by = 5
+
+    def get_queryset(self):
+        return Post.objects.order_by('-published_date')
+
 
 # Show single post details
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'
+
 
 # Create a new post
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -70,6 +75,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
 
 # Update an existing post
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -85,11 +91,13 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         post = self.get_object()
         return self.request.user == post.author
 
+
 # Delete a post
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_confirm_delete.html'
-    success_url = '/posts/'
+    from django.urls import reverse_lazy
+    success_url = reverse_lazy('blog:post-list')
 
     def test_func(self):
         post = self.get_object()

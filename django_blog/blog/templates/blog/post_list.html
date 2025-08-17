@@ -1,43 +1,26 @@
 {% extends "blog/base.html" %}
 {% block content %}
-<h2>All Posts</h2>
-
-{% if user.is_authenticated %}
-    <a class="button" href="{% url 'blog:post-create' %}">Create New Post</a>
-{% endif %}
+<h2>All Blog Posts</h2>
 
 {% for post in posts %}
-<article>
-    <h3>
-        <a href="{% url 'blog:post-detail' post.pk %}">{{ post.title }}</a>
-        {% if user == post.author and not post.published_date %}
-            <span style="color: red; font-weight: bold;">(Draft)</span>
-        {% endif %}
-    </h3>
-    <p>{{ post.content|truncatechars:100 }}</p>
-    <p>By {{ post.author }} on 
-        {% if post.published_date %}
-            {{ post.published_date|date:"F d, Y" }}
-        {% else %}
-            <em>Draft</em>
-        {% endif %}
-    </p>
-
-    {% if user == post.author %}
-        <a class="button" href="{% url 'blog:post-update' post.pk %}">Edit</a>
-        <a class="button" href="{% url 'blog:post-delete' post.pk %}">Delete</a>
-
-        {% if not post.published_date %}
-            <form method="POST" action="{% url 'blog:post-publish' post.pk %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="button">Publish</button>
-            </form>
-        {% endif %}
-    {% endif %}
-</article>
-<hr>
+  <div class="post">
+    <h3><a href="{% url 'blog:post-detail' post.pk %}">{{ post.title }}</a></h3>
+    <p>{{ post.content|truncatewords:40 }}</p>
+    <p>By {{ post.author }} on {{ post.published_date|date:"F d, Y" }}</p>
+  </div>
 {% empty %}
-<p>No posts available.</p>
+  <p>No posts yet.</p>
 {% endfor %}
 
+<div class="pagination">
+  {% if is_paginated %}
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+  {% endif %}
+</div>
 {% endblock %}
