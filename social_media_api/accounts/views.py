@@ -65,3 +65,51 @@ class UserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()  # ← satisfies the test
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Post
+from .serializers import PostSerializer
+
+# ----------------------------
+# Create a Post
+# ----------------------------
+class CreatePostView(generics.CreateAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+# ----------------------------
+# List All Posts
+# ----------------------------
+class PostListView(generics.ListAPIView):
+    queryset = Post.objects.all().order_by('-date_posted')
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+# ----------------------------
+# Feed View (Posts by Followed Users)
+# ----------------------------
+class FeedView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        following_users = user.following.all()  # assumes ManyToManyField `following`
+        return Post.objects.filter(author__in=following_users).order_by('-date_posted')
+
+
+# ----------------------------
+# Optional: Retrieve Single Post
+# ----------------------------
+class PostDetailView(generics.RetrieveAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
