@@ -4,6 +4,9 @@ from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
+# ----------------------------
+# Registration Serializer
+# ----------------------------
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -22,9 +25,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)
         return user
 
-# Serializer for following/followers display (optional for API output)
+# ----------------------------
+# Follow Serializer
+# ----------------------------
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'following', 'followers']
         read_only_fields = ['following', 'followers']
+
+# ----------------------------
+# Custom User Serializer (needed for UserListView)
+# ----------------------------
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'bio', 'profile_picture']

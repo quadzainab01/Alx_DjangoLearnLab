@@ -71,7 +71,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Post
-from .serializers import PostSerializer
+from posts.serializers import PostSerializer
 
 # ----------------------------
 # Create a Post
@@ -88,7 +88,7 @@ class CreatePostView(generics.CreateAPIView):
 # List All Posts
 # ----------------------------
 class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all().order_by('-date_posted')
+    queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
