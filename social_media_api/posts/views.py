@@ -1,16 +1,23 @@
-from rest_framework import viewsets, permissions, filters, generics
-from .models import Post, Comment
-from .serializers import PostSerializer, CommentSerializer
+from rest_framework import viewsets, permissions, filters, generics, status
+from rest_framework.response import Response
 from django.contrib.auth import get_user_model
-from .serializers import PostSerializer
-
+from django.shortcuts import get_object_or_404
+from .models import Post, Comment, Like
+from .serializers import PostSerializer, CommentSerializer
+from notifications.models import Notification
 
 User = get_user_model()
 
+# ----------------------------
+# Permissions
+# ----------------------------
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return obj.author == request.user or request.method in permissions.SAFE_METHODS
 
+# ----------------------------
+# Post & Comment ViewSets
+# ----------------------------
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
@@ -29,24 +36,21 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-# Task 2: Feed View
-
+# ----------------------------
+# Feed View
+# ----------------------------
 class FeedView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        following_users = user.following.all()  # ← define variable exactly as test expects
+        following_users = user.following.all()  # ← required by test
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
 
-
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from .models import Post, Like
-from notifications.models import Notification
-
+# ----------------------------
+# Like/Unlike Post Views
+# ----------------------------
 class LikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
