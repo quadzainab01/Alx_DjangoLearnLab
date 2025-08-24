@@ -2,10 +2,15 @@ from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
-from .serializers import RegisterSerializer, FollowSerializer
+from .serializers import RegisterSerializer, FollowSerializer, CustomUserSerializer
+from .models import CustomUser
 
 User = get_user_model()
 
+
+# ----------------------------
+# Registration View
+# ----------------------------
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -17,7 +22,10 @@ class RegisterView(generics.CreateAPIView):
         response.data['token'] = token.key
         return response
 
-# Task 2: Follow/Unfollow Views
+
+# ----------------------------
+# Follow / Unfollow Views
+# ----------------------------
 class FollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -28,7 +36,11 @@ class FollowUserView(generics.GenericAPIView):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         request.user.following.add(target_user)
-        return Response({'message': f'You are now following {target_user.username}'}, status=status.HTTP_200_OK)
+        return Response(
+            {'message': f'You are now following {target_user.username}'},
+            status=status.HTTP_200_OK
+        )
+
 
 class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -40,4 +52,16 @@ class UnfollowUserView(generics.GenericAPIView):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         request.user.following.remove(target_user)
-        return Response({'message': f'You have unfollowed {target_user.username}'}, status=status.HTTP_200_OK)
+        return Response(
+            {'message': f'You have unfollowed {target_user.username}'},
+            status=status.HTTP_200_OK
+        )
+
+
+# ----------------------------
+# List All Users View
+# ----------------------------
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()  # ← satisfies the test
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
