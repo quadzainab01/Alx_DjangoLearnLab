@@ -102,9 +102,8 @@ class FeedView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        following_users = user.following.all()  # assumes ManyToManyField `following`
-        return Post.objects.filter(author__in=following_users).order_by('-date_posted')
-
+        following_users = user.following.all()  # ManyToManyField `following`
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
 
 # ----------------------------
 # Optional: Retrieve Single Post
