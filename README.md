@@ -56,7 +56,7 @@ Django
 
 Django REST Framework
 
-SQLite (default, can be replaced with PostgreSQL/MySQL)
+Git Bash
 
 ✍️ Author: Zainab Abiola Quadri
 📌 Goal: Practice and master Django web development.
