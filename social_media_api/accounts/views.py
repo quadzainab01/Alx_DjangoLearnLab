@@ -92,9 +92,8 @@ class PostListView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
 # ----------------------------
-# Feed View (Posts by Followed Users)
+# Feed View (Posts by Followed Users + Own Posts)
 # ----------------------------
 class FeedView(generics.ListAPIView):
     serializer_class = PostSerializer
@@ -102,8 +101,10 @@ class FeedView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        following_users = user.following.all()  # ManyToManyField `following`
-        return Post.objects.filter(author__in=following_users).order_by('-created_at')
+        # Get users the current user follows
+        following_users = user.following.all()
+        # Include the current user's own posts
+        return Post.objects.filter(author__in=list(following_users) + [user]).order_by('-created_at')
 
 # ----------------------------
 # Optional: Retrieve Single Post
