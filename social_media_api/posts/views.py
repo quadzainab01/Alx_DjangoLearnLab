@@ -39,20 +39,21 @@ class FeedView(generics.ListAPIView):
         user = self.request.user
         following_users = user.following.all()  # ← define variable exactly as test expects
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
+
+
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from .models import Post, Like
 from notifications.models import Notification
-from django.contrib.contenttypes.models import ContentType
 
 class LikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        post = Post.objects.get(pk=pk)
+        post = get_object_or_404(Post, pk=pk)
         like, created = Like.objects.get_or_create(user=request.user, post=post)
         if created:
-            # create notification for post author
             if post.author != request.user:
                 Notification.objects.create(
                     recipient=post.author,
@@ -67,7 +68,7 @@ class UnlikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        post = Post.objects.get(pk=pk)
+        post = get_object_or_404(Post, pk=pk)
         try:
             like = Like.objects.get(user=request.user, post=post)
             like.delete()
